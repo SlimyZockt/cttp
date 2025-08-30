@@ -1,0 +1,19 @@
+CompileFlags:
+  Add: [-std=c11, -Wall, -Wextra]
+
+
+Style:
+  QuotedHeaders: "src/.*"
+
+Index:
+  Background: Build
+
+InlayHints:
+  BlockEnd: false
+  Designators: true
+  Enabled: true
+  ParameterNames: true
+  DeducedTypes: true
+  DefaultArguments: false
+  TypeNameLimit: 24
+
