@@ -7,7 +7,7 @@
 
 int main(int argc, char **argv) {
 
-    NOB_REBUILD_URSELF(argc, argv);
+    NOB_GO_REBUILD_URSELF(argc, argv);
 
     Nob_Cmd cmd = {0};
 
@@ -17,9 +17,10 @@ int main(int argc, char **argv) {
 
     nob_cc(&cmd);
     nob_cc_flags(&cmd);
-    nob_cc_output(&cmd, BUILD_FOLDER "cttp");
-    nob_cc_inputs(&cmd, LIB_FOLDER "cttp.c");
+    // nob_cc_inputs(&cmd, LIB_FOLDER "core.h");
     nob_cc_inputs(&cmd, SRC_FOLDER "cttp.c");
+    nob_cmd_append(&cmd, "-I", SRC_FOLDER);
+    nob_cc_output(&cmd, BUILD_FOLDER "cttp");
 
     if (!nob_cmd_run(&cmd)) {
         return 1;
