@@ -1,3 +1,6 @@
+#ifndef CTTP_CORE_H
+#define CTTP_CORE_H
+
 #include <stddef.h>
 #include <stdint.h>
 
@@ -21,10 +24,13 @@ typedef void VoidProc(void);
 #define global static
 #define local_persist static
 
-typedef struct {
+typedef struct Arena Arena;
+struct Arena {
     u8 *memory;
     size_t capacity;
     size_t offset;
-} Arena;
+};
 
 Arena create_arena(size_t size);
+
+#endif
