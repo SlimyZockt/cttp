@@ -3,6 +3,7 @@
 
 #define BUILD_FOLDER "build/"
 #define SRC_FOLDER "src/"
+#define EXAMPLE_FOLDER "exapmle/"
 #define LIB_FOLDER "lib/"
 
 int main(int argc, char **argv) {
@@ -15,11 +16,11 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+
     nob_cc(&cmd);
-    nob_cc_flags(&cmd);
-    // nob_cc_inputs(&cmd, LIB_FOLDER "core.h");
-    nob_cc_inputs(&cmd, SRC_FOLDER "cttp.c");
-    nob_cmd_append(&cmd, "-I", SRC_FOLDER);
+    nob_cmd_append(&cmd, "-std=c11");
+    // nob_cc_flags(&cmd);
+    nob_cc_inputs(&cmd, EXAMPLE_FOLDER "cttp_simple.c");
     nob_cc_output(&cmd, BUILD_FOLDER "cttp");
 
     if (!nob_cmd_run(&cmd)) {
