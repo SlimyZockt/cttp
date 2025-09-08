@@ -36,7 +36,8 @@ CTTP_HTTP_Response cttp_to_http(CTTP_Request request) {
 void cttp_handle(CTTP_Server *server, CTTP_MethodFlag method, CTTP_Path path, CTTP_Handle handle) {
     //TODO: add auto count on use
     
-    Array array = array(CTTP_Route, &server->arena);
+    Array(CTTP_Route);
+    CTTP_Route_Array *array = array_init(CTTP_Route, &server->arena);
     // server->arena
 
 }
