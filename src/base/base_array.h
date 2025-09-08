@@ -56,7 +56,7 @@ void array_push_(Array *array, void *item) {
 }
 
 internal
-void array_pop_(Array *array) {
+void array_pop(Array *array) {
     assert(array->length == 0 && "No Item Left");
     array->length -= 1;
     if (array->length % array->capacity == 0) {
