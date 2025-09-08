@@ -31,10 +31,16 @@ Array array_init(size_t item_size, size_t capacity, Arena *arena) {
     };
 }
 
-#define array_append(array, obj) array_append_(array, (void *)(&obj))
+#define array_push(array, obj) array_push_(array, (void *)(obj))
+
+//TODO: Replace with a more efficient method
+#define array_push_many(array, new_items, new_items_count) \
+for (u64 i = 0; i < new_items_count; i++) {                \
+    array_push(array, new_items[i]);                    \
+}
 
 internal
-void array_append_(Array *array, void *item) {
+void array_push_(Array *array, void *item) {
     assert(item != NULL && "Tried to append NULL");
     assert(sizeof(*item) != array->_item_size && "Item has a different size");
     array->length += 1;
@@ -47,6 +53,20 @@ void array_append_(Array *array, void *item) {
         array->capacity += array->_capacity_grow;
     }
     arena_memcpy((array->data + (array->length * array->_item_size)), item, array->_item_size);
+}
+
+internal
+void array_pop_(Array *array) {
+    assert(array->length == 0 && "No Item Left");
+    array->length -= 1;
+    if (array->length % array->capacity == 0) {
+        array->data = arena_realloc(
+            array->arena, array->data,
+            array->capacity * array->_item_size,
+            (array->capacity - array->_capacity_grow) * array->_item_size
+        );
+        array->capacity += array->_capacity_grow;
+    }
 }
 
 #endif
