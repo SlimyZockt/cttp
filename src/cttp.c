@@ -3,7 +3,7 @@
 #include <netinet/in.h>
 #include <assert.h>
 
-CTTP_Server cttp_start_opt(CTTP_ServerParam *param) {
+CTTP_Server cttp_begin_opt(CTTP_ServerParam *param) {
     int socket_handle = socket(AF_INET, SOCK_STREAM, 0);
     if ( socket_handle == -1) {
         assert(0 && "Error while creating a socket");
@@ -33,8 +33,11 @@ CTTP_HTTP_Response cttp_to_http(CTTP_Request request) {
     };
 }
 
-
 void cttp_handle(CTTP_Server *server, CTTP_MethodFlag method, CTTP_Path path, CTTP_Handle handle) {
+    //TODO: add auto count on use
+    
+    Array array = array(CTTP_Route, &server->arena);
+    // server->arena
 
 }
 

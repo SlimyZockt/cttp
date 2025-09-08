@@ -14,23 +14,23 @@
 
 #include "../vendored/arena.h"
 #include "./base/base_inc.h"
-
-
+#include <string.h>
 
 typedef struct CTTP_String {
-    char *str;
+    char* str;
     u64 len;
 } CTTP_String;
+
+typedef struct CTTP_Path{
+    size_t count;
+    // size_t capacity;
+    CTTP_String *path;
+} CTTP_Path;
 
 typedef struct CTTP_ServerParam {
    u64 port;
 } CTTP_ServerParam;
 
-typedef struct CTTP_Path{
-    const char **path;
-    size_t count;
-    // size_t capacity;
-} CTTP_Path;
 
 typedef struct CTTP_Respose {
 
@@ -47,9 +47,16 @@ typedef struct CTTP_Route {
     CTTP_Handle handle;
 } CTTP_Route;
 
+
+typedef struct CTTP_Routes {
+    CTTP_Route **routes;
+    u64 len;
+    u64 capacity;
+} CTTP_Routes;
+
 typedef struct CTTP_Server {
    int socket;
-   CTTP_Route *routes;
+   CTTP_Route **routes;
    u64 route_count;
    Arena arena;
 } CTTP_Server;
@@ -67,17 +74,17 @@ CTTP_MethodFlag_TRACE = (1 << 7),
 CTTP_MethodFlag_PATCH = (1 << 8),
 };
 
-#define cttp_path(...)                                               \
-(CTTP_Path){((const char *[]){__VA_ARGS__}),                         \
-        (sizeof((const char *[]){__VA_ARGS__}) / sizeof(const char *))}
+#define cttp_S(str) (CTTP_String){str, sizeof(str) - 1}
 
-#define cttp_start(...)                                 \
-    cttp_start_opt(&(CTTP_ServerParam){.port = 8080,    \
+#define cttp_path(...) (CTTP_Path){                                        \
+    (sizeof((CTTP_String[]){__VA_ARGS__}) / sizeof(CTTP_String)),          \
+    (CTTP_String[]){__VA_ARGS__}                                           \
+}
+
+#define cttp_begin(...)                                 \
+    cttp_begin_opt(&(CTTP_ServerParam){.port = 8080,    \
                                         __VA_ARGS__})   
-
-
-
-CTTP_Server cttp_start_opt(CTTP_ServerParam *param);
+CTTP_Server cttp_begin_opt(CTTP_ServerParam *param);
 void cttp_handle(CTTP_Server *server, CTTP_MethodFlag method, CTTP_Path path, CTTP_Handle handle);
 void cttp_end(CTTP_Server *server);
 #endif
