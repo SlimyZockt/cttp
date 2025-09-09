@@ -1,22 +1,13 @@
 #ifndef CTTP_BASE_ARRAY_H
 #define CTTP_BASE_ARRAY_H
 
-typedef struct Array_ {
-    void *data;
-    size_t length;
-    size_t capacity;
-    size_t _item_size;
-    size_t _capacity_grow;
-    Arena *arena;
-} Array_;
-
 #ifndef ARRAY_INIT_CAPACITY
     #define ARRAY_INIT_CAPACITY 32
 #endif
 
 #define array_init(Type, arena) (Type##_Array *) array_init_(sizeof(Type), ARRAY_INIT_CAPACITY, arena)
 
-#define Array(Type) \
+#define DefineArray(Type) \
 typedef struct Type##_Array { \
     Type *data; \
     size_t length; \
@@ -26,13 +17,14 @@ typedef struct Type##_Array { \
     Arena *arena; \
 } Type##_Array \
 
+DefineArray(void);
 
 // (Type##Array *) array_init_(sizeof(Type), ARRAY_INIT_CAPACITY, arena)
 
 internal
-Array_ *array_init_(size_t item_size, size_t capacity, Arena *arena) {
+void_Array *array_init_(size_t item_size, size_t capacity, Arena *arena) {
     size_t size = item_size * capacity;
-    Array_ *array = arena_alloc(arena,  + sizeof(Array_));
+    void_Array *array = arena_alloc(arena,  + sizeof(void_Array));
     if (array == 0) {
         assert(0 && "Array Header allocation failed");
     }
@@ -50,7 +42,7 @@ Array_ *array_init_(size_t item_size, size_t capacity, Arena *arena) {
     return array;
 }
 
-#define array_push(array, obj) array_push_(array, (void *)(obj))
+#define array_push(array, obj) array_push_((void_Array *)array, (void *)(obj))
 
 //TODO: Replace with a more efficient method
 #define array_push_many(array, new_items, new_items_count) \
@@ -59,23 +51,34 @@ for (u64 i = 0; i < new_items_count; i++) {                \
 }
 
 internal
-void array_push_(Array_ *array, void *item) {
+void array_push_(void_Array *array, void *item) {
     assert(item != NULL && "Tried to append NULL");
     assert(sizeof(*item) != array->_item_size && "Item has a different size");
-    array->length += 1;
+
     if (array->length >= array->capacity) {
         array->data = arena_realloc(
-            array->arena, array->data,
+            array->arena,
+            array->data,
             array->capacity * array->_item_size,
             (array->capacity + array->_capacity_grow) * array->_item_size
         );
         array->capacity += array->_capacity_grow;
     }
-    arena_memcpy((array->data + (array->length * array->_item_size)), item, array->_item_size);
+
+    arena_memcpy(
+        (array->data + (array->length * array->_item_size)),
+        item,
+        array->_item_size
+    );
+
+    array->length += 1;
 }
 
+
+#define array_pop(array) array_pop_((void_Array *)array)
+
 internal
-void array_pop(Array_ *array) {
+void array_pop_(void_Array *array) {
     assert(array->length == 0 && "No Item Left");
     array->length -= 1;
     if (array->length % array->capacity == 0) {

@@ -16,44 +16,54 @@ CTTP_Server cttp_begin_opt(CTTP_ServerParam *param) {
     };
 
     bind(socket_handle, (const struct sockaddr*)(&addr), sizeof(addr));
-
     return (CTTP_Server){
         .socket = socket_handle,
+        .routes = NULL,
+        .arena = {0},
     };
+
 }
 
-typedef struct CTTP_HTTP_Response {
-    u8 *data;
-    u64 len;
-} CTTP_HTTP_Response;
+CTTP_HTTP cttp_to_http(CTTP_Request request) {
 
-CTTP_HTTP_Response cttp_to_http(CTTP_Request request) {
-    return (CTTP_HTTP_Response){
+    return (CTTP_HTTP){
 
     };
 }
 
 void cttp_handle(CTTP_Server *server, CTTP_MethodFlag method, CTTP_Path path, CTTP_Handle handle) {
-    //TODO: add auto count on use
-    
-    Array(CTTP_Route);
-    CTTP_Route_Array *array = array_init(CTTP_Route, &server->arena);
-    // server->arena
+    if ( server->routes == NULL ) {
+        server->routes = array_init(CTTP_Route, &server->arena);
+    }
 
+    assert(method != NULL && "method is NULL");
+
+    array_push(server->routes, &((CTTP_Route){
+        .handle = handle,
+        .method = method,
+        .path = path,
+    }));
 }
 
-void cttp__handle(CTTP_Server *server, CTTP_MethodFlag method, CTTP_Path path, CTTP_Handle handle) {
+internal
+void _cttp_open_route(CTTP_Server *server, CTTP_Route *route) {
     CTTP_Respose response;
     CTTP_Request request;
 
-    handle(response, request);
+    printf("%lu \n", route->handle);
+    CTTP_HTTP http = route->handle(request);
 
-    CTTP_HTTP_Response http = cttp_to_http(request);
 
-    send(server->socket, http.data, http.len, 0);
+    // http = cttp_to_http(request);
+
+    // send(server->socket, http.data, http.len, 0);
 }
 
 void cttp_end(CTTP_Server *server) {
+    for (u64 i = 0; i < server->routes->length; i++){
+        CTTP_Route *route = &server->routes->data[i];
+        _cttp_open_route(server, route);
+    }
 
 }
 

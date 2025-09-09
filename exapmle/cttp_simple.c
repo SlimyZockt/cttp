@@ -5,13 +5,15 @@
 #define S cttp_S
 #define P cttp_path
 
-b8 index(CTTP_Respose respose, CTTP_Request request) {
-    return 1;
+CTTP_HTTP index(CTTP_Request request) {
+    return (CTTP_HTTP){
+        
+    };
 }
 
 int main(int argc, char **argv) {
 
-    printf("Hello");
+    printf("Hello \n");
 
     CTTP_Server server = cttp_begin();
 

@@ -40,26 +40,17 @@ typedef struct CTTP_Request {
 
 } CTTP_Request;
 
-typedef b8(*CTTP_Handle)(CTTP_Respose, CTTP_Request);
 
-typedef struct CTTP_Route {
-    CTTP_Path path; 
-    CTTP_Handle handle;
-} CTTP_Route;
+typedef u16 CTTP_StatusCode;
+enum {
+CTTP_StatusCode_OK = 0, 
+CTTP_StatusCode_404 = 1,
+};
 
-
-typedef struct CTTP_Routes {
-    CTTP_Route **routes;
-    u64 len;
-    u64 capacity;
-} CTTP_Routes;
-
-typedef struct CTTP_Server {
-   int socket;
-   CTTP_Route **routes;
-   u64 route_count;
-   Arena arena;
-} CTTP_Server;
+rodata char *CTTP_StatusCodeTable[] = {
+"404 Not Found",
+"200 OK",
+};
 
 typedef u16 CTTP_MethodFlag;
 enum {
@@ -73,6 +64,29 @@ CTTP_MethodFlag_OPTIONS = (1 << 6),
 CTTP_MethodFlag_TRACE = (1 << 7),
 CTTP_MethodFlag_PATCH = (1 << 8),
 };
+
+typedef struct CTTP_HTTP {
+    CTTP_StatusCode status_coode;
+    u8 *data;
+    u64 len;
+} CTTP_HTTP;
+
+typedef CTTP_HTTP(*CTTP_Handle)(CTTP_Request);
+
+typedef struct CTTP_Route {
+    CTTP_Handle handle;
+    CTTP_MethodFlag method;
+    CTTP_Path path; 
+} CTTP_Route;
+
+DefineArray(CTTP_Route);
+
+typedef struct CTTP_Server {
+   int socket;
+   CTTP_Route_Array *routes;
+   Arena arena;
+} CTTP_Server;
+
 
 #define cttp_S(str) (CTTP_String){str, sizeof(str) - 1}
 
