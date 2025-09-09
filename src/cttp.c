@@ -32,11 +32,11 @@ CTTP_HTTP cttp_to_http(CTTP_Request request) {
 }
 
 void cttp_handle(CTTP_Server *server, CTTP_MethodFlag method, CTTP_Path path, CTTP_Handle handle) {
+    // assert(method != NULL && "method is NULL");
+    assert(path.length > 0 && "Path is empty");
     if ( server->routes == NULL ) {
         server->routes = array_init(CTTP_Route, &server->arena);
     }
-
-    assert(method != NULL && "method is NULL");
 
     array_push(server->routes, &((CTTP_Route){
         .handle = handle,
@@ -50,11 +50,9 @@ void _cttp_open_route(CTTP_Server *server, CTTP_Route *route) {
     CTTP_Respose response;
     CTTP_Request request;
 
-    printf("%lu \n", route->handle);
     CTTP_HTTP http = route->handle(request);
 
-
-    // http = cttp_to_http(request);
+    http = cttp_to_http(request);
 
     // send(server->socket, http.data, http.len, 0);
 }

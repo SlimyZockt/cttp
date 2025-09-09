@@ -22,7 +22,7 @@ typedef struct CTTP_String {
 } CTTP_String;
 
 typedef struct CTTP_Path{
-    size_t count;
+    u64 length;
     // size_t capacity;
     CTTP_String *path;
 } CTTP_Path;
