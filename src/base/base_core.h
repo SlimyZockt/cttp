@@ -37,11 +37,12 @@ typedef void VoidProc(void);
 #define Billion(n)    ((n)*1000000000)
 #define static_assert _Static_assert
 
-#define cttp_ensure(expr, msg)                                          \
+#define cttp__assert(expr, msg, assert_msg)                                          \
     do {                                                                \
         if (!(expr)) {                                                  \
             fprintf(stderr,                                             \
-                    "[ASSERTION FAILED] --- [%s:%d:%s()] %s \n",     \
+                    "[%s] --- [%s:%d:%s()] %s \n",                      \
+                    assert_msg,                                         \
                     __FILE__,                                           \
                     __LINE__,                                           \
                     __func__,                                           \
@@ -50,11 +51,14 @@ typedef void VoidProc(void);
         }                                                               \
     } while (0)                                                         \
 
+
+#define cttp_ensure(expr, msg) cttp__assert(expr, msg, "ENSURE FAILED")
+
 #ifndef NDEBUG
-    #define cttp_assert(expr, msg) cttp_enshure(expr, msg)
+    #define cttp_assert(expr, msg) cttp__assert(expr, msg, "ASSERTION FAILED")
 #endif
 
-#define cttp_panic(msg) cttp_assert(0, msg)
+#define cttp_panic(msg) cttp__assert(0, msg, "PANIC")
 
 #define BSWAP16(x) \
     ((((x) & 0x00FF) << 8) | \
