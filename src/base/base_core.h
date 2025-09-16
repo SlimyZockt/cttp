@@ -37,7 +37,7 @@ typedef void VoidProc(void);
 #define Billion(n)    ((n)*1000000000)
 #define static_assert _Static_assert
 
-#define cttp_enshure(expr, msg)                                          \
+#define cttp_ensure(expr, msg)                                          \
     do {                                                                \
         if (!(expr)) {                                                  \
             fprintf(stderr,                                             \
@@ -45,10 +45,10 @@ typedef void VoidProc(void);
                     __FILE__,                                           \
                     __LINE__,                                           \
                     __func__,                                           \
-                    (sizeof(msg) -1 == 0 ) #expr : msg);                \
+                    *(msg) ? (msg) : #expr);                            \
             abort();                                                    \
         }                                                               \
-    } while (0)
+    } while (0)                                                         \
 
 #ifndef NDEBUG
     #define cttp_assert(expr, msg) cttp_enshure(expr, msg)
