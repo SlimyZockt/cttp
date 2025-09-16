@@ -37,19 +37,28 @@ typedef void VoidProc(void);
 #define Billion(n)    ((n)*1000000000)
 #define static_assert _Static_assert
 
-#define cttp__assert(expr, msg, assert_msg)                                          \
+
+#define cttp__error(msg, tag)                                   \
+    do {                                                        \
+        fprintf(stderr,                                         \
+            "[%s] --- [%s:%d:%s()] %s \n",                      \
+            tag,                                                \
+            __FILE__,                                           \
+            __LINE__,                                           \
+            __func__,                                           \
+            msg                                                 \
+        );                                                      \
+    } while(0)                                                  \
+
+#define cttp_error(msg) cttp__error(msg, "ERROR")
+
+#define cttp__assert(expr, msg, tag)                                    \
     do {                                                                \
         if (!(expr)) {                                                  \
-            fprintf(stderr,                                             \
-                    "[%s] --- [%s:%d:%s()] %s \n",                      \
-                    assert_msg,                                         \
-                    __FILE__,                                           \
-                    __LINE__,                                           \
-                    __func__,                                           \
-                    *(msg) ? (msg) : #expr);                            \
+            cttp__error(*(msg) ? (msg) : #expr, tag);                   \
             abort();                                                    \
         }                                                               \
-    } while (0)                                                         \
+    } while(0)                                                          \
 
 
 #define cttp_ensure(expr, msg) cttp__assert(expr, msg, "ENSURE FAILED")
