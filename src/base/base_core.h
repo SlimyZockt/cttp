@@ -37,25 +37,35 @@ typedef void VoidProc(void);
 #define Billion(n)    ((n)*1000000000)
 #define static_assert _Static_assert
 
+#define CTTP_RED "\x1B[31m"
+#define CTTP_GRN "\x1B[32m"
+#define CTTP_YEL "\x1B[33m"
+#define CTTP_BLU "\x1B[34m"
+#define CTTP_MAG "\x1B[35m"
+#define CTTP_CYN "\x1B[36m"
+#define CTTP_WHT "\x1B[37m"
+#define CTTP_RESET "\x1B[0m"
 
-#define cttp__error(msg, tag)                                   \
-    do {                                                        \
-        fprintf(stderr,                                         \
-            "[%s] --- [%s:%d:%s()] %s \n",                      \
-            tag,                                                \
-            __FILE__,                                           \
-            __LINE__,                                           \
-            __func__,                                           \
-            msg                                                 \
-        );                                                      \
-    } while(0)                                                  \
+#define cttp__log(msg, tag, color)                                  \
+    do {                                                            \
+        fprintf(stderr,                                             \
+            color "[%s] --- " CTTP_RESET "[%s:%d:%s()] %s \n",    \
+            tag,                                                    \
+            __FILE__,                                               \
+            __LINE__,                                               \
+            __func__,                                               \
+            msg                                                     \
+        );                                                          \
+    } while(0)                                                      \
 
-#define cttp_error(msg) cttp__error(msg, "ERROR")
+#define cttp_error(msg) cttp__log(msg, "ERROR", CTTP_RED)
+#define cttp_info(msg) cttp__log(msg, "INFO", CTTP_RESET)
+#define cttp_wran(msg) cttp__log(msg, "WARN", CTTP_YEL)
 
 #define cttp__assert(expr, msg, tag)                                    \
     do {                                                                \
         if (!(expr)) {                                                  \
-            cttp__error(*(msg) ? (msg) : #expr, tag);                   \
+            cttp__log(*(msg) ? (msg) : #expr, tag, CTTP_RED);                   \
             abort();                                                    \
         }                                                               \
     } while(0)                                                          \
