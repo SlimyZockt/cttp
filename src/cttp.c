@@ -48,7 +48,15 @@ void cttp_end(CTTP_Server *server) {
     addr.sin_addr.s_addr = INADDR_ANY;
 
     int err = bind(socket_handle, (const struct sockaddr *)(&addr), sizeof(addr));
-    ensure(err < 0, "Bind failed");
+    cttp_assert(err < 0, "Bind failed");
+
+    err = listen(socket_handle, SOMAXCONN);
+    cttp_assert(err < 0, "Listen failed");
+
+    int epoll_handle = epoll_create1(0);
+    cttp_assert(epoll_handle > 0, "epoll creation error");
+
+
 
     while (1) {
         for (u64 i = 0; i < server->routes->length; i++) {

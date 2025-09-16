@@ -3,6 +3,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
 
 typedef uint8_t u8;
@@ -33,9 +35,26 @@ typedef void VoidProc(void);
 #define Thousand(n)   ((n)*1000)
 #define Million(n)    ((n)*1000000)
 #define Billion(n)    ((n)*1000000000)
-
 #define static_assert _Static_assert
-#define ensure(bool_exp, msg) assert(!(bool_exp) && msg)
+
+#define cttp_enshure(expr, msg)                                          \
+    do {                                                                \
+        if (!(expr)) {                                                  \
+            fprintf(stderr,                                             \
+                    "[ASSERTION FAILED] --- [%s:(%d): %s()] %s",        \
+                    __FILE__,                                           \
+                    __LINE__,                                           \
+                    __func__,                                           \
+                    (sizeof(msg) -1 == 0 ) #expr : msg);                \
+            abort();                                                    \
+        }                                                               \
+    } while (0)
+
+#ifndef NDEBUG
+    #define cttp_assert(expr, msg) cttp_enshure(expr, msg)
+#endif
+
+#define cttp_panic(msg) cttp_assert(0, msg)
 
 #define BSWAP16(x) \
     ((((x) & 0x00FF) << 8) | \
