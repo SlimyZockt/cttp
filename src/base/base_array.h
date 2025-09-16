@@ -7,8 +7,8 @@
 
 #define array_init(Type, arena) (Type##_Array *) array_init_(sizeof(Type), ARRAY_INIT_CAPACITY, arena)
 
-#define DefineArray(Type) \
-typedef struct Type##_Array { \
+#define Array(Type) \
+struct Type##_Array { \
     Type *data; \
     size_t length; \
     size_t capacity; \
@@ -17,7 +17,8 @@ typedef struct Type##_Array { \
     Arena *arena; \
 } Type##_Array \
 
-DefineArray(void);
+
+typedef Array(void);
 
 // (Type##Array *) array_init_(sizeof(Type), ARRAY_INIT_CAPACITY, arena)
 

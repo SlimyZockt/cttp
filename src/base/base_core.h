@@ -9,14 +9,14 @@ typedef uint8_t u8;
 typedef uint16_t u16;
 typedef uint32_t u32;
 typedef uint64_t u64;
-typedef int8_t s8;
-typedef int16_t s16;
-typedef int32_t s32;
-typedef int64_t s64;
-typedef s8 b8;
-typedef s16 b16;
-typedef s32 b32;
-typedef s64 b64;
+typedef int8_t i8;
+typedef int16_t i16;
+typedef int32_t i32;
+typedef int64_t i64;
+typedef i8 b8;
+typedef i16 b16;
+typedef i32 b32;
+typedef i64 b64;
 typedef float f32;
 typedef double f64;
 typedef void VoidProc(void);
@@ -34,7 +34,8 @@ typedef void VoidProc(void);
 #define Million(n)    ((n)*1000000)
 #define Billion(n)    ((n)*1000000000)
 
-#define StaticAssert _Static_assert
+#define static_assert _Static_assert
+#define ensure(bool_exp, msg) assert(!(bool_exp) && msg)
 
 #define BSWAP16(x) \
     ((((x) & 0x00FF) << 8) | \

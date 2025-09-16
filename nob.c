@@ -16,7 +16,6 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-
     nob_cc(&cmd);
     nob_cmd_append(&cmd, "-std=c11");
     // nob_cc_flags(&cmd);

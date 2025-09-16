@@ -116,7 +116,7 @@
 #define _CRT_SECURE_NO_WARNINGS (1)
 #endif
 
-#ifndef NOBDEF
+#ifndef NOBDEFFlag
 /*
    Goes before declarations and definitions of the nob functions. Useful to
    `#define NOBDEF static inline` if your source code is a single file and you

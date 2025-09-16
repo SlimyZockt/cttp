@@ -21,16 +21,11 @@ typedef struct CTTP_String {
     u64 len;
 } CTTP_String;
 
+// size_t capacity;
 typedef struct CTTP_Path{
     u64 length;
-    // size_t capacity;
     CTTP_String *path;
 } CTTP_Path;
-
-typedef struct CTTP_ServerParam {
-   u64 port;
-} CTTP_ServerParam;
-
 
 typedef struct CTTP_Respose {
 
@@ -79,11 +74,16 @@ typedef struct CTTP_Route {
     CTTP_Path path; 
 } CTTP_Route;
 
-DefineArray(CTTP_Route);
+typedef Array(CTTP_Route);
+
+typedef struct CTTP_Server_Parameter {
+   u64 port;
+} CTTP_Server_Parameter;
 
 typedef struct CTTP_Server {
+    CTTP_Route_Array *routes;
    int socket;
-   CTTP_Route_Array *routes;
+   u64 port;
    Arena arena;
 } CTTP_Server;
 
@@ -95,10 +95,11 @@ typedef struct CTTP_Server {
     (CTTP_String[]){__VA_ARGS__}                                           \
 }
 
-#define cttp_begin(...)                                 \
-    cttp_begin_opt(&(CTTP_ServerParam){.port = 8080,    \
-                                        __VA_ARGS__})   
-CTTP_Server cttp_begin_opt(CTTP_ServerParam *param);
+#define cttp_begin(server, ...)                                 \
+    cttp_begin_opt(server, &(CTTP_Server_Parameter){.port = 0,    \
+                                        __VA_ARGS__})  
+
+void cttp_begin_opt(CTTP_Server *server, CTTP_Server_Parameter *parameter);
 void cttp_handle(CTTP_Server *server, CTTP_MethodFlag method, CTTP_Path path, CTTP_Handle handle);
 void cttp_end(CTTP_Server *server);
 #endif
