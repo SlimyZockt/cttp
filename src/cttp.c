@@ -39,6 +39,7 @@ void cttp_handle(CTTP_Server *server, CTTP_MethodFlag method, CTTP_Path path,
 void cttp_end(CTTP_Server *server) {
     int socket_handle = socket(AF_INET, SOCK_STREAM, 0);
     cttp_ensure(socket_handle >= 0, "Error while creating a socket");
+    server->socket = socket_handle;
 
     int opt = 1;
     setsockopt(socket_handle, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
@@ -106,7 +107,7 @@ void cttp_end(CTTP_Server *server) {
                     const char *response =
                         "HTTP/1.1 200 OK\r\n"
                         "Content-Type: text/plain\r\n"
-                        "Content-Length: 15\r\n"
+                        "Content-Length: 14\r\n"
                         "\r\n"
                         "Hello, epoll!\n";
 
@@ -119,4 +120,6 @@ void cttp_end(CTTP_Server *server) {
             }
         }
     }
+    close(server->socket);
+    close(epoll_handle);
 }
