@@ -41,7 +41,7 @@ typedef void VoidProc(void);
     do {                                                                \
         if (!(expr)) {                                                  \
             fprintf(stderr,                                             \
-                    "[ASSERTION FAILED] --- [%s:(%d): %s()] %s",        \
+                    "[ASSERTION FAILED] --- [%s:%d:%s()] %s \n",     \
                     __FILE__,                                           \
                     __LINE__,                                           \
                     __func__,                                           \

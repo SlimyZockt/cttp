@@ -26,7 +26,7 @@ CTTP_HTTP cttp_to_http(CTTP_Request request) {
 
 void cttp_handle(CTTP_Server *server, CTTP_MethodFlag method, CTTP_Path path,
                  CTTP_Handle handle) {
-    ensure(path.length > 0, "Path is empty");
+    cttp_ensure(path.length > 0, "Path is empty");
 
     array_push(server->routes, &((CTTP_Route){
                                 handle,
@@ -37,7 +37,7 @@ void cttp_handle(CTTP_Server *server, CTTP_MethodFlag method, CTTP_Path path,
 
 void cttp_end(CTTP_Server *server) {
     int socket_handle = socket(AF_INET, SOCK_STREAM, 0);
-    cttp_ensure(socket_handle == -1, "Error while creating a socket");
+    cttp_ensure(socket_handle >= 0, "Error while creating a socket");
 
     int opt = 1;
     setsockopt(socket_handle, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
@@ -48,15 +48,13 @@ void cttp_end(CTTP_Server *server) {
     addr.sin_addr.s_addr = INADDR_ANY;
 
     int err = bind(socket_handle, (const struct sockaddr *)(&addr), sizeof(addr));
-    cttp_ensure(err < 0, "Bind failed");
+    cttp_ensure(err == 0, "Bind failed");
 
     err = listen(socket_handle, SOMAXCONN);
-    cttp_ensure(err < 0, "Listen failed");
+    cttp_ensure(err == 0, "Listen failed");
 
     int epoll_handle = epoll_create1(0);
     cttp_ensure(epoll_handle > 0, "epoll creation error");
-
-
 
     while (1) {
         for (u64 i = 0; i < server->routes->length; i++) {
