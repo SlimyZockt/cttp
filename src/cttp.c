@@ -103,13 +103,16 @@ void cttp_end(CTTP_Server *server) {
                 continue;
             }
 
+            //TODO parse request
+
             buffer[bytes] = '\0';
             printf("Request from fd=%d:\n%s\n", fd, buffer);
 
-            // for (u64 i = 0; i < server->routes->length; i++) {
-            //     CTTP_Route *route = &server->routes->data[i];
-            // }
-            //
+            //TODO search for route and generate response
+            for (u64 i = 0; i < server->routes->length; i++) {
+                CTTP_Route *route = &server->routes->data[i];
+            }
+
             const char *response =
                 "HTTP/1.1 200 OK\r\n"
                 "Content-Type: text/plain\r\n"
