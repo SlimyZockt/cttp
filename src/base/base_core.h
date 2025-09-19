@@ -46,38 +46,34 @@ typedef void VoidProc(void);
 #define CTTP_WHT "\x1B[37m"
 #define CTTP_RESET "\x1B[0m"
 
-#define cttp__log(msg, tag, color)                                  \
-    do {                                                            \
-        fprintf(stderr,                                             \
-            color "[%s] --- " CTTP_RESET "[%s:%d:%s()] %s \n",    \
-            tag,                                                    \
-            __FILE__,                                               \
-            __LINE__,                                               \
-            __func__,                                               \
-            msg                                                     \
-        );                                                          \
-    } while(0)                                                      \
+#define cttp__log(tag, color, msg, ...)                                         \
+    fprintf(stderr,                                                             \
+        color "[" tag "] --- " CTTP_RESET "[" __FILE__ ":%d:%s()] " msg " \n",  \
+        __LINE__,                                                               \
+        __func__                                                                \
+        ,##__VA_ARGS__)
 
-#define cttp_error(msg) cttp__log(msg, "ERROR", CTTP_RED)
-#define cttp_info(msg) cttp__log(msg, "INFO", CTTP_RESET)
-#define cttp_wran(msg) cttp__log(msg, "WARN", CTTP_YEL)
-
-#define cttp__assert(expr, msg, tag)                                    \
-    do {                                                                \
-        if (!(expr)) {                                                  \
-            cttp__log(*(msg) ? (msg) : #expr, tag, CTTP_RED);                   \
-            abort();                                                    \
-        }                                                               \
-    } while(0)                                                          \
+ 
+#define cttp__assert(tag, expr, msg, ...)                                \
+    do {                                                                     \
+        if (!(expr)) {                                                       \
+            cttp__log(tag, CTTP_RED,  msg, ##__VA_ARGS__);                   \
+            abort();                                                         \
+        }                                                                    \
+    } while(0)
 
 
-#define cttp_ensure(expr, msg) cttp__assert(expr, msg, "ENSURE FAILED")
+#define cttp_ensure(...) cttp__assert("ENSURE FAILED", __VA_ARGS__)
 
-#ifndef NDEBUG
-    #define cttp_assert(expr, msg) cttp__assert(expr, msg, "ASSERTION FAILED")
+#define cttp_info(...) cttp__log("INFO", CTTP_RESET, __VA_ARGS__)
+#define cttp_warn(...) cttp__log("WARN", CTTP_YEL, __VA_ARGS__)
+#define cttp_error(...) cttp__log("ERROR", CTTP_RED, __VA_ARGS__)
+#define cttp_panic(...) cttp__assert(0, "PANIC", __VA_ARGS__)
+
+#ifndef CTTP_RELEASE
+    #define cttp_assert(...) cttp__assert("ASSERTION FAILED", __VA_ARGS__)
+    #define cttp_debug(...) cttp__log("DEBUG", CTTP_RESET, __VA_ARGS__)
 #endif
-
-#define cttp_panic(msg) cttp__assert(0, msg, "PANIC")
 
 #define BSWAP16(x) \
     ((((x) & 0x00FF) << 8) | \

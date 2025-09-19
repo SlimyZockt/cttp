@@ -3,6 +3,8 @@
 #include <assert.h>
 #include <errno.h>
 #include <netinet/in.h>
+#include <stdio.h>
+#include <string.h>
 #include <sys/socket.h>
 #include <sys/epoll.h>
 
@@ -66,13 +68,14 @@ void cttp_end(CTTP_Server *server) {
     printf("Start server at http://localhost:%lu\n", server->port);
     struct epoll_event events[CTTP_MAX_EVENTS];
 
-    cttp_info("accept failed");
+
+   Arena request_arena = {0};
 
     while (1) {
         int n = epoll_wait(epoll_handle, events, CTTP_MAX_EVENTS, -1);
         if (n < 0) {
             if (errno == EINTR) continue;
-            cttp_error("Epoll Error");
+            cttp_error("Epoll Error", NULL);
             break;
         }
         for (int i = 0; i < n; i++) {
@@ -94,8 +97,9 @@ void cttp_end(CTTP_Server *server) {
             }
             // Handle client data
             char buffer[4096];
-            int bytes = read(fd, buffer, sizeof(buffer) - 1);
 
+            
+            int bytes = read(fd, buffer, sizeof(buffer) - 1);
             if (bytes <= 0) {
                 // client closed connection
                 close(fd);
@@ -103,12 +107,13 @@ void cttp_end(CTTP_Server *server) {
                 continue;
             }
 
-            //TODO parse request
 
             buffer[bytes] = '\0';
-            printf("Request from fd=%d:\n%s\n", fd, buffer);
+            cttp_debug("%s", buffer);
 
-            //TODO search for route and generate response
+            _cttp_parse_http()
+
+
             for (u64 i = 0; i < server->routes->length; i++) {
                 CTTP_Route *route = &server->routes->data[i];
             }
@@ -129,4 +134,16 @@ void cttp_end(CTTP_Server *server) {
     }
     close(server->socket);
     close(epoll_handle);
+}
+
+int _cttp_parse_http(CTTP_Request *request_out, const CTTP_String *request, const Sti *sb) {
+    u64 parese_pos = 0; 
+    for (u64 i = 0; i < request->len; i++) {
+        if (request->str[i] == ' ') {
+            
+        }
+        arena_da_append_many(arena, request->str[i]);
+    }
+
+    return 0;
 }
