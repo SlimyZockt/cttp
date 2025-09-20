@@ -2,8 +2,8 @@
 #include "../src/cttp.c"
 #include <stdio.h>
 
-#define S cttp_S
-#define P cttp_path
+#define S CTTP_S
+#define P CTTP_PATH
 
 CTTP_HTTP index(CTTP_Request request) {
     return (CTTP_HTTP){

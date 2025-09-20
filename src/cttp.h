@@ -2,38 +2,21 @@
 #define BASE_ARENA_H
 
 #ifndef ARENA_BACKEND
-
-#if defined(__linux__)
-#define ARENA_BACKEND ARENA_BACKEND_LINUX_MMAP
-#elif defined(_WIN32)
-#define ARENA_BACKEND ARENA_BACKEND_WIN32_VIRTUALALLOC
-#endif
-
+    #if defined(__linux__)
+        #define ARENA_BACKEND ARENA_BACKEND_LINUX_MMAP
+    #elif defined(_WIN32)
+        #define ARENA_BACKEND ARENA_BACKEND_WIN32_VIRTUALALLOC
+    #endif
 #endif // ARENA_BACKEND
 
-
-#include "../vendored/arena.h"
 #include "./base/base_inc.h"
-#include <string.h>
 
-typedef struct CTTP_String {
-    char* str;
-    u64 len;
-} CTTP_String;
-
-// size_t capacity;
-typedef struct CTTP_Path{
-    u64 length;
-    CTTP_String *path;
-} CTTP_Path;
+typedef _Array(CTTP_String);
 
 typedef struct CTTP_Respose {
 
 } CTTP_Respose;
 
-typedef struct CTTP_Request {
-
-} CTTP_Request;
 
 
 typedef u16 CTTP_StatusCode;
@@ -60,6 +43,11 @@ CTTP_MethodFlag_TRACE = (1 << 7),
 CTTP_MethodFlag_PATCH = (1 << 8),
 };
 
+typedef struct CTTP_Request {
+    CTTP_MethodFlag method;
+    CTTP_String_Array *path;
+} CTTP_Request;
+
 typedef struct CTTP_HTTP {
     CTTP_StatusCode status_coode;
     u8 *data;
@@ -71,28 +59,27 @@ typedef CTTP_HTTP(*CTTP_Handle)(CTTP_Request);
 typedef struct CTTP_Route {
     CTTP_Handle handle;
     CTTP_MethodFlag method;
-    CTTP_Path path; 
+    CTTP_String_Array path;
 } CTTP_Route;
 
-typedef Array(CTTP_Route);
+typedef _Array(CTTP_Route);
 
 typedef struct CTTP_Server_Parameter {
    u64 port;
 } CTTP_Server_Parameter;
 
 typedef struct CTTP_Server {
-    CTTP_Route_Array *routes;
+   CTTP_Route_Array *routes;
    int socket;
    u64 port;
    Arena arena;
 } CTTP_Server;
 
-
-#define cttp_S(str) (CTTP_String){str, sizeof(str) - 1}
-
-#define cttp_path(...) (CTTP_Path){                                        \
+#define CTTP_PATH(...) (CTTP_String_Array){                                \
+    0,                                                                 \
+    (CTTP_String[]){__VA_ARGS__},                                          \
     (sizeof((CTTP_String[]){__VA_ARGS__}) / sizeof(CTTP_String)),          \
-    (CTTP_String[]){__VA_ARGS__}                                           \
+    (sizeof((CTTP_String[]){__VA_ARGS__}) / sizeof(CTTP_String)),          \
 }
 
 #define cttp_begin(server, ...)                                 \
@@ -100,6 +87,6 @@ typedef struct CTTP_Server {
                                         __VA_ARGS__})  
 
 void cttp_begin_opt(CTTP_Server *server, CTTP_Server_Parameter *parameter);
-void cttp_handle(CTTP_Server *server, CTTP_MethodFlag method, CTTP_Path path, CTTP_Handle handle);
+void cttp_handle(CTTP_Server *server, CTTP_MethodFlag method, CTTP_String_Array path, CTTP_Handle handle);
 void cttp_end(CTTP_Server *server);
 #endif

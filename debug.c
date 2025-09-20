@@ -1,7 +1,7 @@
 #define NOB_IMPLEMENTATION
 #include "nob.h"
 
-#define BUILD_FOLDER "build/"
+#define BUILD_FOLDER "debug/"
 #define SRC_FOLDER "src/"
 #define EXAMPLE_FOLDER "exapmle/"
 #define LIB_FOLDER "lib/"

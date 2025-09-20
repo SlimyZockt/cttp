@@ -2,9 +2,12 @@
 #define CTTP_BASE_INC_H
 
 #define ARENA_IMPLEMENTATION
-
 #include "../../vendored/arena.h"
+
+
 #include "./base_core.h"
+#include "./base_assert.h"
 #include "./base_array.h"
+#include "./base_string.h"
 
 #endif
