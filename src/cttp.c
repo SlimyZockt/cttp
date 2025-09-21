@@ -9,14 +9,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/epoll.h>
-#include <sys/epoll.h>
 #include <sys/socket.h>
 
 #define CTTP_MAX_EVENTS 25
 
-#define S CTTP_S
-
-void cttp_begin_opt(CTTP_Server *server, CTTP_Server_Parameter *parameter) {
 #define S CTTP_S
 
 void cttp_begin_opt(CTTP_Server *server, CTTP_Server_Parameter *parameter) {
@@ -32,27 +28,14 @@ void cttp_begin_opt(CTTP_Server *server, CTTP_Server_Parameter *parameter) {
 }
 
 void cttp_handle(CTTP_Server *server, CTTP_MethodFlag method, CTTP_String_Array path, CTTP_Handle handle) {
-void cttp_handle(CTTP_Server *server, CTTP_MethodFlag method, CTTP_String_Array path, CTTP_Handle handle) {
     cttp_ensure(path.length > 0, "Path is empty");
 
     array_push(server->routes, &((CTTP_Route){
                                    handle,
                                    method,
                                    path,
-                                   handle,
-                                   method,
-                                   path,
                                }));
 }
-
-
-typedef struct _HTTP_NODE {
-   struct _HTTP_Node *left; 
-   struct _HTTP_Node *right; 
-   CTTP_String token;
-} _HTTP_NODE;
-
-
 
 b8 _cttp_parse_path(CTTP_Request *request_out, CTTP_String *token, Arena *arena) {
     request_out->path = array_init(CTTP_String, arena);
@@ -164,21 +147,15 @@ void cttp_end(CTTP_Server *server) {
     struct epoll_event events[CTTP_MAX_EVENTS];
 
     Arena request_arena = {0};
-    Arena request_arena = {0};
 
     while (1) {
         int n = epoll_wait(epoll_handle, events, CTTP_MAX_EVENTS, -1);
 
-
         if (n < 0) {
-            if (errno == EINTR)
-                continue;
-            if (errno == EINTR)
-                continue;
+            if (errno == EINTR) continue;
             cttp_error("Epoll Error", NULL);
             break;
         }
-
 
         for (int i = 0; i < n; i++) {
             int fd = events[i].data.fd;
@@ -200,7 +177,6 @@ void cttp_end(CTTP_Server *server) {
             // Handle client data
             char buffer[4096];
 
-
             int bytes = read(fd, buffer, sizeof(buffer) - 1);
             if (bytes <= 0) {
                 // client closed connection
@@ -208,8 +184,8 @@ void cttp_end(CTTP_Server *server) {
                 epoll_ctl(epoll_handle, EPOLL_CTL_DEL, fd, NULL);
                 continue;
             }
-
             buffer[bytes] = '\0';
+
             cttp_debug("%s", buffer);
 
             CTTP_Request request = {0};
@@ -229,21 +205,22 @@ void cttp_end(CTTP_Server *server) {
                 u8 found = 1;
 
                 for (size_t j = 0; j < request.path->length; j++) {
-                    found = found && cttp_str_cmp(request.path->data[j], route->path.data[j]);
+                    found = found 
+                        && (cttp_str_cmp(request.path->data[j], route->path.data[j]) 
+                        || route->path.data[j].str[0] == '$');
                 }
 
                 if (found) {
                 response =
                     "HTTP/1.1 200 OK\r\n"
                     "Content-Type: text/plain\r\n"
-                    "Content-Length: 14\r\n"
+                    "Content-Length: 16\r\n"
                     "\r\n"
-                    "Hello, index !\n"; 
+                    "Hello, internet!\n"; 
 
                 break;
                 }
             }
-
 
             write(fd, response, strlen(response));
 
@@ -251,8 +228,6 @@ void cttp_end(CTTP_Server *server) {
             close(fd);
             epoll_ctl(epoll_handle, EPOLL_CTL_DEL, fd, NULL);
         }
-
-        arena_reset(&request_arena);
 
         arena_reset(&request_arena);
     }
