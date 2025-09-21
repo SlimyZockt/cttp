@@ -1,4 +1,7 @@
 build/
+debug/
+.cache/
+.idea/
 run_debug
 run_debug.old
 run_build
