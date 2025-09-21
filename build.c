@@ -26,11 +26,5 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    nob_cmd_append(&cmd, BUILD_FOLDER "cttp");
-
-    if (!nob_cmd_run(&cmd)) {
-        return 1;
-    }
-
     return 0;
 }

@@ -1,2 +1,5 @@
 build/
-nob.old
+run_debug
+run_debug.old
+run_build
+run_build.old
