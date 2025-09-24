@@ -2,7 +2,6 @@ build/
 debug/
 .cache/
 .idea/
-debug/
 run_debug
 run_debug.old
 run_build
