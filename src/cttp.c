@@ -52,8 +52,6 @@ b8 _cttp_parse_path(CTTP_Request *request_out, CTTP_String *token, Arena *arena)
     for (u64 i = 1; i < token->len; i++) {
         if (token->str[i] == '/') {
             arena_sb_append_null(arena, &sb);
-
-            cttp_warn("%s", sb.items);
             array_push(request_out->path, (&(CTTP_String){sb.items, sb.count}));
 
             token_len = 0;
@@ -69,8 +67,6 @@ b8 _cttp_parse_path(CTTP_Request *request_out, CTTP_String *token, Arena *arena)
 
     if (token_len > 0) {
         arena_sb_append_null(arena, &sb);
-
-        cttp_warn("%s", sb.items);
         array_push(request_out->path, (&(CTTP_String){sb.items, sb.count}));
 
         token_len = 0;
@@ -83,7 +79,7 @@ b8 _cttp_parse_path(CTTP_Request *request_out, CTTP_String *token, Arena *arena)
 }
 
 int _cttp_parse_http(CTTP_Request *request_out, CTTP_String *request, Arena *arena) {
-    u64 last_token_pos = 0;
+    // u64 last_token_pos = 0;
     u16 token_len = 0;
     u16 token_paresed = 0;
     // CTTP_String_Builder sb = {0};
@@ -189,14 +185,14 @@ void cttp_end(CTTP_Server *server) {
             cttp_debug("%s", buffer);
 
             CTTP_Request request = {0};
-            _cttp_parse_http(&request, &(CTTP_String){buffer, 4096}, &request_arena);
 
-            const char *response =
-                "HTTP/1.1 200 OK\r\n"
-                "Content-Type: text/plain\r\n"
-                "Content-Length: 14\r\n"
-                "\r\n"
-                "Hello, epoll!\n";
+            _cttp_parse_http(&request, &(CTTP_String){buffer, 4096}, &request_arena);
+            CTTP_String http_response = S(
+                    "HTTP/1.1 404 Not Found\r\n"
+                        "Content-Type: text/plain\r\n"
+                        "Content-Length: 10\r\n"
+                        "\r\n"
+                        "Not Found\n");
 
             for (u64 i = 0; i < server->routes->length; i++) {
                 CTTP_Route *route = &server->routes->data[i];
@@ -211,18 +207,41 @@ void cttp_end(CTTP_Server *server) {
                 }
 
                 if (found) {
-                response =
-                    "HTTP/1.1 200 OK\r\n"
+                CTTP_Response response = route->handle(&request);
+                CTTP_String_Builder sb = {0};
+
+                arena_sb_append_cstr(&request_arena, &sb, 
+                    "HTTP/1.1 "
+                );
+                arena_sb_append_cstr(&request_arena, &sb, CTTP_StatusCodeTable[response.status_coode]);
+                arena_sb_append_cstr(&request_arena, &sb, 
                     "Content-Type: text/plain\r\n"
-                    "Content-Length: 16\r\n"
-                    "\r\n"
-                    "Hello, internet!\n"; 
+                    );
+                arena_sb_append_cstr(&request_arena, &sb, "Content-Length: ");
+
+                int body_size = snprintf(NULL, 0, "%lu", response.body.len - 1);
+                char *body_str = arena_alloc(&request_arena, ( body_size+1 ));
+                snprintf(body_str, body_size+1, "%lu", response.body.len - 1);
+
+                cttp_debug("Body length: %lu", response.body.len);
+                cttp_debug("Body length snprintf: %s", body_str);
+
+                arena_sb_append_cstr(&request_arena, &sb, body_str);
+                arena_sb_append_cstr(&request_arena, &sb, "\r\n\r\n");
+                arena_sb_append_cstr(&request_arena, &sb, response.body.str);
+                arena_sb_append_null(&request_arena, &sb);
+                // arena_sb_append_cstr(&request_arena, &sb, "");
+
+                http_response.str = sb.items;
+                http_response.len = sb.count;
 
                 break;
                 }
             }
 
-            write(fd, response, strlen(response));
+            cttp_debug("Response: \n %s", http_response.str);
+
+            write(fd, http_response.str, http_response.len - 1);
 
             // Close for simplicity (HTTP/1.0 style)
             close(fd);

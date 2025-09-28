@@ -3,6 +3,7 @@
 
 #include "base_core.h"
 #include <stddef.h>
+#include <string.h>
 
 typedef struct CTTP_String {
     char* str;

@@ -1,6 +1,7 @@
 #ifndef BASE_ARENA_H
 #define BASE_ARENA_H
 
+#include "base/base_string.h"
 #ifndef ARENA_BACKEND
     #if defined(__linux__)
         #define ARENA_BACKEND ARENA_BACKEND_LINUX_MMAP
@@ -13,12 +14,6 @@
 
 typedef _Array(CTTP_String);
 
-typedef struct CTTP_Respose {
-
-} CTTP_Respose;
-
-
-
 typedef u16 CTTP_StatusCode;
 enum {
 CTTP_StatusCode_OK = 0, 
@@ -26,8 +21,8 @@ CTTP_StatusCode_404 = 1,
 };
 
 rodata char *CTTP_StatusCodeTable[] = {
-"404 Not Found",
-"200 OK",
+"200 OK\r\n",
+"404 Not Found\r\n",
 };
 
 typedef u16 CTTP_MethodFlag;
@@ -48,13 +43,13 @@ typedef struct CTTP_Request {
     CTTP_String_Array *path;
 } CTTP_Request;
 
-typedef struct CTTP_HTTP {
+typedef struct CTTP_Response {
     CTTP_StatusCode status_coode;
-    u8 *data;
-    u64 len;
-} CTTP_HTTP;
+    CTTP_String body;
+    // CTTP_StatusCode type;
+} CTTP_Response;
 
-typedef CTTP_HTTP(*CTTP_Handle)(CTTP_Request);
+typedef CTTP_Response(*CTTP_Handle)(CTTP_Request*);
 
 typedef struct CTTP_Route {
     CTTP_Handle handle;
@@ -76,13 +71,13 @@ typedef struct CTTP_Server {
 } CTTP_Server;
 
 #define CTTP_PATH(...) (CTTP_String_Array){                                \
-    0,                                                                 \
+    0,                                                                     \
     (CTTP_String[]){__VA_ARGS__},                                          \
     (sizeof((CTTP_String[]){__VA_ARGS__}) / sizeof(CTTP_String)),          \
     (sizeof((CTTP_String[]){__VA_ARGS__}) / sizeof(CTTP_String)),          \
 }
 
-#define cttp_begin(server, ...)                                 \
+#define cttp_begin(server, ...)                                   \
     cttp_begin_opt(server, &(CTTP_Server_Parameter){.port = 0,    \
                                         __VA_ARGS__})  
 
